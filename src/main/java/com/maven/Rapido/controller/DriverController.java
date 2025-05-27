@@ -1,0 +1,125 @@
+package com.maven.Rapido.controller;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maven.Rapido.exception.APIException;
+import com.maven.Rapido.payload.request.driver.DriverLocationDTO;
+import com.maven.Rapido.payload.request.driver.DriverLocationSendUserDTO;
+import com.maven.Rapido.payload.request.driver.DriverProfileDTO;
+import com.maven.Rapido.service.DriverService;
+import com.maven.Rapido.utils.AuthUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+
+@Slf4j
+@Tag(name = "DriverController", description = "Driver Management")
+@RestController
+@RequestMapping("/v1/api/driver")
+@RequiredArgsConstructor
+public class DriverController {
+    private final DriverService driverService;
+    private final AuthUtil authUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    @PostMapping(value = "/create-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createOrUpdateDriverProfile(
+            @RequestPart("profile") String profileDTO,
+            /*@RequestPart("id") Long id,
+            @RequestPart("firstName") String firstName,
+            @RequestPart("lastName") String lastName,
+            @RequestPart("userName") String userName,
+            @RequestPart("email") String email,
+            @RequestPart("dob") String dob,
+            @RequestPart("currentAddress") String currentAddress,
+            @RequestPart("permanentAddress") String permanentAddress,
+            @RequestPart("vehicleId") Long vehicleId,
+            @RequestPart("adharNumber") Integer adharNumber,
+            @RequestPart("step") Integer step,*/
+            @RequestPart(name = "idProof", required = false) MultipartFile idProof,
+            @RequestPart(name = "drivingLicence", required = false) MultipartFile drivingLicence,
+            @RequestPart(name = "pancard", required = false) MultipartFile pancard,
+            @RequestPart(name = "dobCertificate", required = false) MultipartFile dobCertificate) {
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        DriverProfileDTO request;
+        try {
+            request = objectMapper.readValue(profileDTO, DriverProfileDTO.class);
+        } catch (JsonProcessingException e) {
+            log.info("Error parsing JSON: {}", e.getMessage());
+            throw new APIException("Invalid JSON format");
+        }
+
+        if (request.getStep() == 3) {
+            // In step 3, check if required files are available
+            if (idProof == null || drivingLicence == null || pancard == null || dobCertificate == null) {
+                return ResponseEntity.badRequest().body("All documents are required for step 3");
+            }
+            driverService.saveDocuments(request.getId(), idProof, drivingLicence, pancard, dobCertificate);
+        } else if (request.getStep() == 1) {
+            log.info("Save the Data for step 1 for user ID: {}", request.getId());
+            driverService.saveBasicDetails(request.getId(), request.getFirstName(), request.getFirstName(), request.getUserName(), request.getEmail(), request.getDob(), request.getAdharNumber());
+        } else if (request.getStep() == 2) {
+            log.info("Save the Data for step 2 for user ID: {}", request.getId());
+            driverService.saveVehicleDetails(request.getId(), request.getCurrentAddress(), request.getPermanentAddress(), request.getVehicleId());
+        } else {
+            return ResponseEntity.badRequest().body("Invalid step");
+        }
+        return ResponseEntity.ok("Step saved successfully");
+    }
+
+
+    @GetMapping("/get-profile")
+    public ResponseEntity<?> getDriverProfile() {
+        Long id = authUtil.loggedInUserId();
+        log.info("Fetching driver profile for user ID: {}", id);
+        return ResponseEntity.ok(driverService.getDriverProfile(id));
+    }
+
+    @PostMapping("/adhar-verify")
+    public ResponseEntity<?> adharVerify(@Valid @RequestBody Integer AdharNumber ){
+        String response = driverService.adharVerify(AdharNumber);
+        return ResponseEntity.ok("Verify successfully Done!");
+    }
+
+
+//    @MessageMapping("/driver-update-location-send-to-user")
+//    public void updateLocation(@Payload DriverLocationSendUserDTO location) {
+//        // 1. Update latest driver location in Redis
+//        redisTemplate.opsForHash().put("drivers", location.getDriverId(), location);
+//
+//        // 2. Broadcast updated location to the specific user
+//        messagingTemplate.convertAndSend(
+//                "/topic/user/" + location.getUserId() + "/driver-location",
+//                location
+//        );
+//    }
+//
+//    //  store driver location when driver is in "Driver Mode" and location is updated
+//    @MessageMapping("/update-location") // Frontend will send to: /app/driver/update-location
+//    public void updateDriverLocation(@Payload DriverLocationDTO locationDTO) {
+//        log.info("driver update location");
+//        // Save driver location in Redis
+//        redisTemplate.opsForHash().put("drivers", locationDTO.getDriverId(), locationDTO);
+//    }
+//
+//    //driver toggles "off" – remove from Redis
+//    @MessageMapping("/driver-exit-driver-mode")  // /app/driver/exit-driver-mode
+//    public void removeDriverFromRedis(@Payload String driverId) {
+//        redisTemplate.opsForHash().delete("drivers", driverId);
+//    }
+
+
+}

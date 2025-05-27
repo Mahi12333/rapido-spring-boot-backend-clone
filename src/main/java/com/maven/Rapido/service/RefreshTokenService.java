@@ -1,0 +1,11 @@
+package com.maven.Rapido.service;
+
+import com.maven.Rapido.model.RefreshToken;
+
+import java.util.Optional;
+
+public interface RefreshTokenService{
+    void deleteByUserId(Long id);
+    Optional<RefreshToken> findByToken(String refreshToken);
+    void deleteByToken(String token);
+}
