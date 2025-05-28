@@ -31,7 +31,7 @@ public class LocationTrackingController {
     }
 
     @MessageMapping("/driver-exit-driver-mode")
-    public void removeDriverFromRedis(@Payload String driverId) {
+    public void removeDriverFromRedis(@Payload Long driverId) {
         webSocketService.removeDriver(driverId);
     }
 

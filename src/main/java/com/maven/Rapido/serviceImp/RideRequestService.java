@@ -31,6 +31,7 @@ public class RideRequestService {
 
     private static final String RIDE_KEY_PREFIX = "ride:request:";
 
+    // Here will be change -- how to identify the each driver mobile device for send ride request of user.
     public void broadcastRideToNearbyDrivers(RideRequestDriverDTO rideRequest) {
         double pickupLat = rideRequest.getPickupLat();
         double pickupLng = rideRequest.getPickupLng();
@@ -67,6 +68,7 @@ public class RideRequestService {
         // Generate ride ID
         String rideRequestId = UUID.randomUUID().toString();
 
+        // Here will be change -- how to identify the each driver mobile device for send ride request of user.
         // For each nearby driver, calculate distance/ETA from driver to pickup, then broadcast
         for (DriverLocationDTO driver : nearbyDrivers) {
             Map<String, String> driverToPickup = googleMapsService
@@ -180,12 +182,13 @@ public class RideRequestService {
         User driver = userRepository.findById(driverId)
                 .orElseThrow(() -> new APIException("Driver not found."));
 
-        // 8. Fetch driver's current location from Redis
-        String driverLocationKey = "driver:location:" + driverId;
-        Map<Object, Object> locationMap = redisTemplate.opsForHash().entries(driverLocationKey);
+        // 9. Fetch driver's location from Redis ("drivers" hash, assuming correct format)
+        DriverLocationDTO driverLocation = (DriverLocationDTO) redisTemplate
+                .opsForHash()
+                .get("drivers", driverId);
 
-        double currentLat = Double.parseDouble(locationMap.getOrDefault("lat", "0").toString());
-        double currentLng = Double.parseDouble(locationMap.getOrDefault("lng", "0").toString());
+        double currentLat = driverLocation != null ? driverLocation.getLat() : 0;
+        double currentLng = driverLocation != null ? driverLocation.getLng() : 0;
 
         // 9. Prepare payload
         DriverAcceptedPayload payload = DriverAcceptedPayload.builder()

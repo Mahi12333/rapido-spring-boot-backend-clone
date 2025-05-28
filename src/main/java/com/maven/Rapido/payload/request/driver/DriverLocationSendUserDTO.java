@@ -12,7 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class DriverLocationSendUserDTO {
-    private String driverId;
+    private Long driverId;
     private Double lat;
     private Double lng;
     private String vehicleType; // "BIKE", "CAR"

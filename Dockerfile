@@ -1,22 +1,24 @@
-# Dockerfile
-FROM eclipse-temurin:21-jdk-alpine
+# Builder stage - Build the JAR inside the container
+FROM eclipse-temurin:21-jdk-alpine AS builder
 
-
-# Set environment variable for optional Java options
-ENV JAVA_OPTS=""
-
-# Maintainer information
-LABEL maintainer="Mahitosh Giri <mahitoshgiri287@gmail.com>"
-
-# Set the working directory
 WORKDIR /app
 
-# Copy the built JAR (update the JAR name if it's different)
-COPY target/Rapido-0.0.1-SNAPSHOT.jar app.jar
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
+COPY src ./src
 
-# Expose the application's port
+# Run Maven to build the application
+RUN ./mvnw clean package -DskipTests
+
+# Final stage - Run the JAR
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Copy the JAR from the builder stage
+COPY --from=builder /app/target/Rapido-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 5001
 
-# Run the Spring Boot app
-#ENTRYPOINT ["java", "-jar", "app.jar"]
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Set default command
+ENTRYPOINT ["java", "-jar", "app.jar"]

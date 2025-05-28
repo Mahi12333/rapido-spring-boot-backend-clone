@@ -20,10 +20,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // or use List.of(frontendUrl) if injected
+        config.setAllowedOrigins(List.of("https://rapido-project-spring-boot.onrender.com")); // or use List.of(frontendUrl) if injected
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        //config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        //config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // Required if using cookies or Authorization header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

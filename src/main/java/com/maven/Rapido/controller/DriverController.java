@@ -95,31 +95,5 @@ public class DriverController {
     }
 
 
-//    @MessageMapping("/driver-update-location-send-to-user")
-//    public void updateLocation(@Payload DriverLocationSendUserDTO location) {
-//        // 1. Update latest driver location in Redis
-//        redisTemplate.opsForHash().put("drivers", location.getDriverId(), location);
-//
-//        // 2. Broadcast updated location to the specific user
-//        messagingTemplate.convertAndSend(
-//                "/topic/user/" + location.getUserId() + "/driver-location",
-//                location
-//        );
-//    }
-//
-//    //  store driver location when driver is in "Driver Mode" and location is updated
-//    @MessageMapping("/update-location") // Frontend will send to: /app/driver/update-location
-//    public void updateDriverLocation(@Payload DriverLocationDTO locationDTO) {
-//        log.info("driver update location");
-//        // Save driver location in Redis
-//        redisTemplate.opsForHash().put("drivers", locationDTO.getDriverId(), locationDTO);
-//    }
-//
-//    //driver toggles "off" – remove from Redis
-//    @MessageMapping("/driver-exit-driver-mode")  // /app/driver/exit-driver-mode
-//    public void removeDriverFromRedis(@Payload String driverId) {
-//        redisTemplate.opsForHash().delete("drivers", driverId);
-//    }
-
 
 }

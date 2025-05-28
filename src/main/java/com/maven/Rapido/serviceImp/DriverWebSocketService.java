@@ -20,6 +20,7 @@ public class DriverWebSocketService {
         redisTemplate.opsForHash().put("drivers", locationDTO.getDriverId(), locationDTO);
     }
 
+
     public void sendLocationToUser(DriverLocationSendUserDTO location) {
         log.info("Sending driver location to user: {}", location);
         redisTemplate.opsForHash().put("drivers", location.getDriverId(), location);
@@ -35,7 +36,7 @@ public class DriverWebSocketService {
         );
     }
 
-    public void removeDriver(String driverId) {
+    public void removeDriver(Long driverId) {
         redisTemplate.opsForHash().delete("drivers", driverId);
     }
 }

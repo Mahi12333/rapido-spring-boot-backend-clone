@@ -127,7 +127,7 @@ management:
 
 
 #URL
-FRONTEND_URL: "http://localhost:5173"
+FRONTEND_URL: "https://rapido-project-spring-boot.onrender.com"
 FORGET_PASSWORD_URL: "http://localhost:4200"
 
 #Server
