@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   elasticsearch:
     image: bitnami/elasticsearch:8.17.1
@@ -45,6 +47,24 @@ services:
     networks:
       - docker-backend
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rapido-backend
+    ports:
+      - "5001:5001"
+    depends_on:
+      - logstash
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-2c64d766-mgiri2000mgiri-d1cb.l.aivencloud.com:21671/rapido_project?sslMode=REQUIRED&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: avnadmin
+      SPRING_DATASOURCE_PASSWORD: AVNS_tenhTP6S2wNg8aZLTMv
+      SPRING_REDIS_HOST: gusc1-evolved-cod-31734.upstash.io
+      SPRING_REDIS_PORT: 31734
+      SPRING_REDIS_PASSWORD: 4ac4dd4be6444445908c6a96593e695a
+    networks:
+      - docker-backend
 
 volumes:
   elasticsearch_data: {}
