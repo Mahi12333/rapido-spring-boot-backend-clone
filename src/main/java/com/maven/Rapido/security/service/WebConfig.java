@@ -9,18 +9,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${FRONTEND_URL}")
-    private String frontendUrl;
+    private String frontendUrls;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://rapido-project-spring-boot.onrender.com")); // or use List.of(frontendUrl) if injected
+        CorsConfiguration config = new CorsConfiguration(); //"https://rapido-project-spring-boot.onrender.com"
+        List<String> origins = Arrays.asList(frontendUrls.split(","));
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         //config.setAllowedHeaders(List.of("*"));

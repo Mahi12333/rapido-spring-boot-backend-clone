@@ -17,26 +17,44 @@ public class DriverWebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public void handleLocationUpdate(DriverLocationDTO locationDTO) {
-        redisTemplate.opsForHash().put("drivers", locationDTO.getDriverId(), locationDTO);
+        //redisTemplate.opsForHash().put("drivers", locationDTO.getDriverId(), locationDTO);
+        redisTemplate.opsForHash().put("drivers", String.valueOf(locationDTO.getDriverId()), locationDTO);
+
     }
 
 
     public void sendLocationToUser(DriverLocationSendUserDTO location) {
-        log.info("Sending driver location to user: {}", location);
-        redisTemplate.opsForHash().put("drivers", location.getDriverId(), location);
-        /*messagingTemplate.convertAndSend(
-                "/topic/user/" + location.getUserId() + "/driver-location",
-                location
-        );*/
-        // Send to specific user
-        messagingTemplate.convertAndSendToUser(
-                String.valueOf(location.getUserId()),  // must match Principal.getName()
-                "/queue/driver-location",
-                location
-        );
+        // Fetch driver location from Redis
+        Object driverData = redisTemplate.opsForHash().get("drivers", location.getDriverId().toString());
+
+        if (driverData instanceof DriverLocationDTO) {
+            DriverLocationDTO dto = (DriverLocationDTO) driverData;
+
+            // Build the object to send to the user
+            DriverLocationSendUserDTO sendDTO = DriverLocationSendUserDTO.builder()
+                    .driverId(dto.getDriverId())
+                    .lat(dto.getLat())
+                    .lng(dto.getLng())
+                    .vehicleType(dto.getVehicleType())
+                    .available(dto.isAvailable())
+                    .userId(location.getUserId())
+                    .build();
+
+            log.info("Sending driver location to user: {}", sendDTO);
+
+            messagingTemplate.convertAndSendToUser(
+                    location.getUserId().toString(),         // Must match the Principal.getName() (String)
+                    "/queue/driver-location",  // Must match destination prefix
+                    sendDTO
+            );
+
+        } else {
+            log.error("Driver location not found or invalid for driverId: {}", location.getUserId());
+        }
     }
 
+
     public void removeDriver(Long driverId) {
-        redisTemplate.opsForHash().delete("drivers", driverId);
+        redisTemplate.opsForHash().delete("drivers", driverId.toString());
     }
 }

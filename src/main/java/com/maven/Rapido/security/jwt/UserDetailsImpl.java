@@ -58,7 +58,9 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return phoneNumber; // Spring uses this for identifying the user
+        //TODO
+        //return phoneNumber; // Spring uses this for identifying the user
+        return String.valueOf(id); //! ✅ Return userId as String
     }
 
     @Override

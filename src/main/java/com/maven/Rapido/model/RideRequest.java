@@ -1,6 +1,5 @@
 package com.maven.Rapido.model;
 
-import com.maven.Rapido.emun.RideStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,15 +29,15 @@ public class RideRequest {
     private Long userId;
 
     @Column(name = "pickup_lat", nullable = true)
-    private double pickupLat;
+    private Double pickupLat;
     @Column(name = "pickup_lng", nullable = true)
-    private double pickupLng;
+    private Double pickupLng;
 
     @Column(name = "drop_lat", nullable = true)
-    private double dropLat;
+    private Double dropLat;
 
     @Column(name = "drop-lng", nullable = true)
-    private double dropLng;
+    private Double dropLng;
 
     @Column(name = "vehicle_type", nullable = true)
     private String vehicleType;
@@ -54,4 +53,10 @@ public class RideRequest {
 
     @Column(name = "created-at", nullable = true)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "otp", nullable = true)
+    private Integer otp;
+
+    @Column(name = "otp_status", nullable = true)
+    private String otpStatus;
 }

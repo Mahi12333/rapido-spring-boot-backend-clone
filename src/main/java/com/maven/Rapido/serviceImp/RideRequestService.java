@@ -1,6 +1,7 @@
 package com.maven.Rapido.serviceImp;
 
 
+import com.maven.Rapido.emun.OtpStatus;
 import com.maven.Rapido.emun.RideStatus;
 import com.maven.Rapido.exception.APIException;
 import com.maven.Rapido.model.RideRequest;
@@ -45,13 +46,13 @@ public class RideRequestService {
         Map<Object, Object> allDriversMap = redisTemplate.opsForHash().entries("drivers");
         List<DriverLocationDTO> allDrivers = allDriversMap.values().stream()
                 .map(obj -> (DriverLocationDTO) obj)
-                .collect(Collectors.toList());
+                .toList();
 
         // Filter nearby drivers within 3 km
         List<DriverLocationDTO> nearbyDrivers = allDrivers.stream()
                 .filter(driver -> driver.getVehicleType().equalsIgnoreCase(vehicleType))
                 .filter(driver -> haversineDistance(pickupLat, pickupLng, driver.getLat(), driver.getLng()) <= 3.0)
-                .collect(Collectors.toList());
+                .toList();
 
         if (nearbyDrivers.isEmpty()) {
             throw new RuntimeException("No nearby drivers found");
@@ -164,10 +165,11 @@ public class RideRequestService {
         // 4. Mark ride as accepted
         rideRequest.setStatus(RideStatus.ACCEPTED.name());
         rideRequest.setAcceptedDriverId(driverId);
+        rideRequest.setOtpStatus(OtpStatus.PENDING.name());
         rideRequestRepository.save(rideRequest);
 
         // 5. Delete ride request from Redis
-        redisTemplate.delete(redisKey);
+        //redisTemplate.delete(redisKey);
 
         // 6. Notify other drivers
         List<Long> otherDrivers = ride.getPendingDriverIds().stream()
@@ -175,7 +177,7 @@ public class RideRequestService {
                 .toList();
 
         for (Long otherId : otherDrivers) {
-            messagingTemplate.convertAndSend("/topic/driver/" + otherId + "/ride-expired", rideRequestId);
+            messagingTemplate.convertAndSend("/topic/driver/" + otherId.toString() + "/ride-expired", rideRequestId);
         }
 
         // 7. Fetch driver details
@@ -185,7 +187,7 @@ public class RideRequestService {
         // 9. Fetch driver's location from Redis ("drivers" hash, assuming correct format)
         DriverLocationDTO driverLocation = (DriverLocationDTO) redisTemplate
                 .opsForHash()
-                .get("drivers", driverId);
+                .get("drivers", driverId.toString());
 
         double currentLat = driverLocation != null ? driverLocation.getLat() : 0;
         double currentLng = driverLocation != null ? driverLocation.getLng() : 0;
@@ -202,7 +204,10 @@ public class RideRequestService {
                 .build();
 
         // 10. Notify user
-        messagingTemplate.convertAndSend("/topic/user/" + ride.getPassengerId() + "/driver-accepted", payload);
+        messagingTemplate.convertAndSend("/topic/user/" + ride.getPassengerId().toString() + "/driver-accepted", payload);
+
+        //TODO
+        // send notification to user with otp about Ride accept.
     }
 
 

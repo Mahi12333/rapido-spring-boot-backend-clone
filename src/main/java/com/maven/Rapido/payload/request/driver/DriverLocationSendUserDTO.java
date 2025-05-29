@@ -17,5 +17,5 @@ public class DriverLocationSendUserDTO {
     private Double lng;
     private String vehicleType; // "BIKE", "CAR"
     private boolean available;
-    private String userId;
+    private Long userId;
 }

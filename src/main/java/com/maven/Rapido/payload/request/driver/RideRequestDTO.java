@@ -15,4 +15,5 @@ public class RideRequestDTO {
     private Double dropLattitute;
     private Double dropLongitude;
     private String vehicleType;
+    private Long userId;
 }

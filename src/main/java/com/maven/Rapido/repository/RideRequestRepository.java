@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
 public interface RideRequestRepository extends JpaRepository<RideRequest, Long> {
     @Query("SELECT r FROM RideRequest r WHERE r.rideRequestId = :riderequestid AND r.userId = :user_id")
     RideRequest findByRequestId(@Param("riderequestid") String rideRequestId, @Param("user_id") Long userId);
+
+    @Query("SELECT r FROM RideRequest r WHERE r.rideRequestId = :rideRequestedId AND r.acceptedDriverId = :driverId AND r.userId = :userId")
+    RideRequest findByRequestIdForOtpVerify(@Param("rideRequestedId") String rideRequestedId, @Param("driverId") Long driverId, @Param("userId") Long userId);
 }

@@ -12,12 +12,13 @@ spring:
 #  profiles:
 #    active: dev  # Development Mode
 
-  #jdbc:mysql://localhost:3306/social_network?useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC
+#jdbc:mysql://localhost:3306/social_network?useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
 #    url: jdbc:mysql://localhost:3306/rapido_project
 #    username: root
 #    password: admin@123
+
 
   datasource:
       url: jdbc:mysql://mysql-2c64d766-mgiri2000mgiri-d1cb.l.aivencloud.com:21671/rapido_project?sslMode=REQUIRED&allowPublicKeyRetrieval=true
@@ -105,7 +106,7 @@ otp:
 #    org.apache.tomcat: DEBUG
 #  file:
 #    name: logs/application.log
-#
+
 #logging:
 #  host: localhost       # Use localhost for local dev, change to 'logstash' in production (Docker)
 #  port: 5000
@@ -127,7 +128,7 @@ management:
 
 
 #URL
-FRONTEND_URL: "https://rapido-project-spring-boot.onrender.com"
+FRONTEND_URL: "https://rapido-project-spring-boot.onrender.com,http://localhost:5173"
 FORGET_PASSWORD_URL: "http://localhost:4200"
 
 #Server
