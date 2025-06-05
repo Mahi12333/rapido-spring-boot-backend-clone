@@ -1,10 +1,13 @@
 package com.maven.Rapido.serviceImp;
 
+import com.maven.Rapido.emun.UserRole;
 import com.maven.Rapido.exception.ResourceNotFoundException;
+import com.maven.Rapido.model.Role;
 import com.maven.Rapido.model.User;
 import com.maven.Rapido.model.VehicleCategory;
 import com.maven.Rapido.payload.request.driver.DriverProfileDTO;
 import com.maven.Rapido.payload.response.driver.DriverResponse;
+import com.maven.Rapido.repository.RoleRepository;
 import com.maven.Rapido.repository.UserRepository;
 import com.maven.Rapido.repository.VehicleTypeRepository;
 import com.maven.Rapido.service.CloudinaryService;
@@ -33,10 +36,13 @@ public class DriverServiceImp implements DriverService {
     private final UserRepository userRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final CloudinaryService cloudinaryService;
+    private final RoleRepository roleRepository;
 
     @Override
     public void saveBasicDetails(Long id, String firstName, String lastName, String userName, String email, String dob, Integer adharNumber) {
         User driver = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+        Role userRole = roleRepository.findByRoleName(UserRole.DRIVER)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver role not found"));
 
         driver.setFirstName(firstName);
         driver.setLastName(lastName);
@@ -45,6 +51,7 @@ public class DriverServiceImp implements DriverService {
         driver.setDob(dob);
         driver.setAdharnumber(adharNumber);
         driver.setStep(1); // Update current step
+        driver.setRole(userRole);
         userRepository.save(driver);
     }
 
@@ -167,7 +174,7 @@ public class DriverServiceImp implements DriverService {
         driverResponse.setDobCertificate(driver.getDobCertificate());
         driverResponse.setStep(driver.getStep());
         driverResponse.setAdharnumber(driver.getAdharnumber());
-        driverResponse.setVehicleType(driver.getVehicleCategory().getName().name());
+        driverResponse.setVehicleType(driver.getVehicleCategory().getName());
         return driverResponse;
     }
 

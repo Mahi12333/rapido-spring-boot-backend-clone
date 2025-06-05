@@ -7,19 +7,24 @@ import com.maven.Rapido.exception.APIException;
 import com.maven.Rapido.model.RideRequest;
 import com.maven.Rapido.model.User;
 import com.maven.Rapido.payload.request.driver.*;
+import com.maven.Rapido.payload.request.notification.PushNotificationRequest;
 import com.maven.Rapido.repository.RideRequestRepository;
 import com.maven.Rapido.repository.UserRepository;
+import com.maven.Rapido.service.FCMService;
 import com.maven.Rapido.utils.GoogleMapsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RideRequestService {
@@ -29,18 +34,42 @@ public class RideRequestService {
     private final GoogleMapsService googleMapsService;
     private final RideRequestRepository rideRequestRepository;
     private final UserRepository userRepository;
+    private final FCMService fcmService;
+
 
     private static final String RIDE_KEY_PREFIX = "ride:request:";
 
-    // Here will be change -- how to identify the each driver mobile device for send ride request of user.
+    // Here will be change -- how to identify each driver mobile device for send ride request of user.
     public void broadcastRideToNearbyDrivers(RideRequestDriverDTO rideRequest) {
-        double pickupLat = rideRequest.getPickupLat();
-        double pickupLng = rideRequest.getPickupLng();
-        double dropLat = rideRequest.getDropLat();
-        double dropLng = rideRequest.getDropLng();
+        double pickupLat = rideRequest.getPickupLattitute();
+        double pickupLng = rideRequest.getPickupLongitude();
+        double dropLat = rideRequest.getDropLattitute();
+        double dropLng = rideRequest.getDropLongitude();
         String vehicleType = rideRequest.getVehicleType();
-        double estimatedFare = rideRequest.getEstimatedFare();
+        BigDecimal estimatedFare = rideRequest.getEstimatedFare();
+        BigDecimal tips = rideRequest.getTips();
         Long userId = rideRequest.getUserId();
+
+        // Null and range checks
+        if (pickupLat == 0 || pickupLng == 0 || dropLat == 0 || dropLng == 0) {
+            throw new APIException("Pickup/Drop location must be provided");
+        }
+
+        if (vehicleType == null || vehicleType.trim().isEmpty()) {
+            throw new APIException("Vehicle type must be specified");
+        }
+
+        if (estimatedFare == null || estimatedFare.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new APIException("Estimated fare must be greater than 0");
+        }
+
+        if (tips == null || tips.compareTo(BigDecimal.ZERO) < 0) {
+            throw new APIException("Tips cannot be negative");
+        }
+
+        if (userId == null || userId <= 0) {
+            throw new APIException("Invalid user ID");
+        }
 
         // Retrieve all active drivers
         Map<Object, Object> allDriversMap = redisTemplate.opsForHash().entries("drivers");
@@ -66,8 +95,8 @@ public class RideRequestService {
         String rideDistance = pickupToDrop.get("distance");
         String rideEta = pickupToDrop.get("eta");
 
-        // Generate ride ID
-        String rideRequestId = UUID.randomUUID().toString();
+        //Ride Id
+        String rideRequestId = "RD" + UUID.randomUUID().toString().substring(0, 8);
 
         // Here will be change -- how to identify the each driver mobile device for send ride request of user.
         // For each nearby driver, calculate distance/ETA from driver to pickup, then broadcast
@@ -75,6 +104,12 @@ public class RideRequestService {
             Map<String, String> driverToPickup = googleMapsService
                     .getDistanceAndETA(driver.getLat(), driver.getLng(), pickupLat, pickupLng)
                     .block();
+
+            Optional<User> DBdriver = userRepository.findById(driver.getDriverId());
+            if(DBdriver.isEmpty()){
+                throw new APIException("Driver not Exists" + driver.getDriverId());
+            }
+            User Driver = DBdriver.get();
 
             RideRequestSocketPayload payload = RideRequestSocketPayload.builder()
                     .rideId(rideRequestId)
@@ -85,6 +120,7 @@ public class RideRequestService {
                     .dropLng(dropLng)
                     .vehicleType(vehicleType)
                     .estimatedFare(estimatedFare)
+                    .tips(tips)
                     .distanceToPickup(driverToPickup.get("distance"))
                     .etaToPickup(driverToPickup.get("eta"))
                     .rideDistance(rideDistance)
@@ -92,6 +128,18 @@ public class RideRequestService {
                     .build();
 
             messagingTemplate.convertAndSend("/topic/driver/" + driver.getDriverId() + "/ride-request", payload);
+
+            // Send The Push Notification
+            PushNotificationRequest request = new PushNotificationRequest();
+            request.setTitle("Title");
+            request.setMessage("Message");
+            request.setToken(Driver.getFcm_token());
+            try {
+                fcmService.sendPushNotificationToToken(request);
+            } catch (Exception e) {
+                log.error("Failed to send FCM notification to driver: {}", driver.getDriverId(), e);
+            }
+
         }
 
         // Save ride request to database
@@ -104,6 +152,7 @@ public class RideRequestService {
                 .dropLng(dropLng)
                 .vehicleType(vehicleType)
                 .estimatedFare(estimatedFare)
+                .tips(tips)
                 .status(RideStatus.PENDING.name())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -120,6 +169,7 @@ public class RideRequestService {
                 .dropLng(dropLng)
                 .vehicleType(vehicleType)
                 .estimatedFare(estimatedFare)
+                .tips(tips)
                 .status("PENDING")
                 .createdAt(LocalDateTime.now())
                 .pendingDriverIds(nearbyDrivers.stream().map(DriverLocationDTO::getDriverId).toList())
@@ -142,6 +192,7 @@ public class RideRequestService {
         String rideRequestId = request.getRideRequestId();
         Long driverId = request.getDriverId();
         Long userId = request.getUserId();
+        User existingUser = userRepository.findById(userId).orElseThrow(() -> new APIException("User not found with this Id"));
 
         String redisKey = RIDE_KEY_PREFIX + rideRequestId;
 
@@ -165,6 +216,7 @@ public class RideRequestService {
         // 4. Mark ride as accepted
         rideRequest.setStatus(RideStatus.ACCEPTED.name());
         rideRequest.setAcceptedDriverId(driverId);
+        rideRequest.setOtp(existingUser.getRideOtp());
         rideRequest.setOtpStatus(OtpStatus.PENDING.name());
         rideRequestRepository.save(rideRequest);
 
@@ -199,8 +251,9 @@ public class RideRequestService {
                 .phoneNumber(driver.getPhoneNumber())
                 .currentLat(currentLat)
                 .currentLng(currentLng)
-                .vehicleType(driver.getVehicleCategory().getName().name()) // assuming it's a String
+                .vehicleType(driver.getVehicleCategory().getName()) // assuming it's a String
                 .vehicleNumber(driver.getPhoneNumber())           // use actual vehicle number
+                .otp(existingUser.getRideOtp())
                 .build();
 
         // 10. Notify user

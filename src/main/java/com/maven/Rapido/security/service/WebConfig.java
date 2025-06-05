@@ -1,11 +1,14 @@
 package com.maven.Rapido.security.service;
 
+import com.maven.Rapido.interceptor.LocaleInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
@@ -17,6 +20,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Value("${FRONTEND_URL}")
     private String frontendUrls;
+
+    @Autowired
+    private LocaleInterceptor localeInterceptor;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -40,5 +46,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/v1/api/auth/**");
         //  .excludePathPatterns("/api/auth/public/**");
     }*/
+
+    @Override
+    public void addInterceptors(InterceptorRegistry interceptorRegistry) {
+        interceptorRegistry.addInterceptor(localeInterceptor);
+    }
 
 }

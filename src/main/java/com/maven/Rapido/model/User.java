@@ -129,5 +129,7 @@ public class User {
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = true)
     private VehicleCategory vehicleCategory;
 
+    @Column(name = "ride_otp", nullable = true)
+    private Integer rideOtp;
 
 }

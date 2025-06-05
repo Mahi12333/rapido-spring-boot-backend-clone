@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 
 
 @Getter
@@ -13,11 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RideRequestDriverDTO {
     private Long userId;
-    private Double pickupLat;
-    private Double pickupLng;
-    private Double dropLat;
-    private Double dropLng;
+    private Double pickupLattitute;
+    private Double pickupLongitude;
+    private Double dropLattitute;
+    private Double dropLongitude;
     private String vehicleType;
-    private Double estimatedFare;
+    private BigDecimal estimatedFare;
+    private BigDecimal tips;
 
 }

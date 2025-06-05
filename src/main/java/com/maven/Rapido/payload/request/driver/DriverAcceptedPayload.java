@@ -16,4 +16,5 @@ public class DriverAcceptedPayload {
     private double currentLng;
     private String vehicleType;
     private String vehicleNumber;
+    private Integer otp;
 }

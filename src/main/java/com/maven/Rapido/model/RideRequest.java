@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -43,7 +44,10 @@ public class RideRequest {
     private String vehicleType;
 
     @Column(name = "estimated_fare", nullable = true)
-    private Double estimatedFare;
+    private BigDecimal estimatedFare;
+
+    @Column(name = "tips", nullable = true)
+    private BigDecimal tips;
 
     @Column(name = "status", nullable = true)
     private String status;

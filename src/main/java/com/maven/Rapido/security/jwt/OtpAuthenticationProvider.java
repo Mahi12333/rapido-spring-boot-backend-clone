@@ -41,10 +41,10 @@ public class OtpAuthenticationProvider implements AuthenticationProvider {
 //        User user = userOpt.get();
         OtpVerify otpVerify = otpVerifyRepository
                 .findByPhoneNumberAndCountryCode(phone, countryCode)
-                .orElseThrow(() -> new APIException("OTP not found or invalid"));
+                .orElseThrow(() -> new APIException("error.otp.invalid"));
 
         if (!otp.equals(String.valueOf(otpVerify.getOtp()))) {
-            throw new APIException("Invalid OTP");
+            throw new APIException("error.otp.invalid");
         }
         // Delete OTP after successful registration
         otpVerifyRepository.delete(otpVerify);
@@ -58,6 +58,7 @@ public class OtpAuthenticationProvider implements AuthenticationProvider {
             newUser.setPhoneNumber(phone);
             newUser.setCountry_code(countryCode);
             newUser.setIsVerified(true);
+            newUser.setRideOtp(generateOtp());
             newUser = userRepository.save(newUser); // ⬅ persist to get generated ID
         }
 
@@ -76,4 +77,9 @@ public class OtpAuthenticationProvider implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return OtpAuthenticationToken.class.isAssignableFrom(authentication);
     }
+
+    private int generateOtp() {
+        return (int) (Math.random() * 90000) + 10000; // Generates 4-digit OTP
+    }
+
 }

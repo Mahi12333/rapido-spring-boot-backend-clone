@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.maven.Rapido.exception.error.APIResponse;
 import com.maven.Rapido.exception.error.ErrorDetails;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -16,17 +18,22 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
 public class MyGlobalExceptionHandler {
+    @Autowired
+    private MessageSource messageSource;
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<APIResponse> myAPIException(APIException e) {
+    public ResponseEntity<APIResponse> myAPIException(APIException e, Locale locale) {
         log.error("APIException---- {}", e.getMessage());
-        String message = e.getMessage();
-        APIResponse apiResponse = new APIResponse(message, false);
+        //  String message = e.getMessage();
+        String localizedMessage = messageSource.getMessage(e.getMessage(), null, locale);
+        log.error("Localized message: {}", localizedMessage);
+        APIResponse apiResponse = new APIResponse(localizedMessage, false);
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
