@@ -3,9 +3,9 @@ package com.maven.Rapido.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maven.Rapido.exception.APIException;
-import com.maven.Rapido.payload.request.driver.DriverLocationDTO;
-import com.maven.Rapido.payload.request.driver.DriverLocationSendUserDTO;
+import com.maven.Rapido.model.OtpVerify;
 import com.maven.Rapido.payload.request.driver.DriverProfileDTO;
+import com.maven.Rapido.payload.response.CommonResponseDTO;
 import com.maven.Rapido.service.DriverService;
 import com.maven.Rapido.utils.AuthUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,10 +13,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,17 +35,6 @@ public class DriverController {
     @PostMapping(value = "/create-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createOrUpdateDriverProfile(
             @RequestPart("profile") String profileDTO,
-            /*@RequestPart("id") Long id,
-            @RequestPart("firstName") String firstName,
-            @RequestPart("lastName") String lastName,
-            @RequestPart("userName") String userName,
-            @RequestPart("email") String email,
-            @RequestPart("dob") String dob,
-            @RequestPart("currentAddress") String currentAddress,
-            @RequestPart("permanentAddress") String permanentAddress,
-            @RequestPart("vehicleId") Long vehicleId,
-            @RequestPart("adharNumber") Integer adharNumber,
-            @RequestPart("step") Integer step,*/
             @RequestPart(name = "idProof", required = false) MultipartFile idProof,
             @RequestPart(name = "drivingLicence", required = false) MultipartFile drivingLicence,
             @RequestPart(name = "pancard", required = false) MultipartFile pancard,
@@ -65,7 +53,7 @@ public class DriverController {
         if (request.getStep() == 3) {
             // In step 3, check if required files are available
             if (idProof == null || drivingLicence == null || pancard == null || dobCertificate == null) {
-                return ResponseEntity.badRequest().body("All documents are required for step 3");
+                throw new APIException("error.driver.documents.required");
             }
             driverService.saveDocuments(request.getId(), idProof, drivingLicence, pancard, dobCertificate);
         } else if (request.getStep() == 1) {
@@ -77,7 +65,12 @@ public class DriverController {
         } else {
             return ResponseEntity.badRequest().body("Invalid step");
         }
-        return ResponseEntity.ok("Step saved successfully");
+
+        CommonResponseDTO<Object> responseBody = new CommonResponseDTO<>(
+                null,
+                "success.driver.profile.created"
+        );
+        return ResponseEntity.ok(responseBody);
     }
 
 

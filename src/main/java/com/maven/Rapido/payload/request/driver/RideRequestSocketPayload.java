@@ -3,6 +3,7 @@ package com.maven.Rapido.payload.request.driver;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +20,8 @@ public class RideRequestSocketPayload {
     private Double dropLng;                     // Drop-off longitude
 
     private String vehicleType;                 // Requested vehicle type (UberX, Auto, etc.)
-    private Double estimatedFare;               // Fare estimate for the ride
+    private BigDecimal estimatedFare;               // Fare estimate for the ride
+    private BigDecimal tips;
 
     private String distanceToPickup;            // Distance from driver to pickup point (e.g., "1.2 km")
     private String etaToPickup;                 // ETA from driver to pickup point (e.g., "5 mins")

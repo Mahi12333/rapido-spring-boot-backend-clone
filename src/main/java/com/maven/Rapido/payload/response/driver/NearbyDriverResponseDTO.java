@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,5 +23,5 @@ public class NearbyDriverResponseDTO {
 
     private String rideDistance;         // e.g. "4.2 km" (pickup → drop)
     private String rideEta;              // e.g. "12 mins"
-    private Double fareEstimate;         // e.g. "₹62.0"
+    private BigDecimal fareEstimate;         // e.g. "₹62.0"
 }

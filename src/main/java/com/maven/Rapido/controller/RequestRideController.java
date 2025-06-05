@@ -23,12 +23,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/requestRide")
+@RequestMapping("/v1/api/requestRide")
 @RequiredArgsConstructor
 public class RequestRideController {
     private final RedisTemplate<String, Object> redisTemplate;
@@ -56,7 +58,8 @@ public class RequestRideController {
 
         // OPTIONAL: Validate user exists
         if (!userRepository.existsById(userId)) {
-            return ResponseEntity.badRequest().body("Invalid user ID");
+            //return ResponseEntity.badRequest().body("Invalid user ID");
+            throw new APIException("Invalid user ID");
         }
 
         // 1. Get all drivers from Redis
@@ -75,8 +78,8 @@ public class RequestRideController {
         log.info("Pickup to Drop Distance:{}", pickupToDrop);
         String rideDistance = pickupToDrop.get("distance");
         String rideEta = pickupToDrop.get("eta");
-        String fare = estimateFare(rideDistance);
-
+        BigDecimal fare = estimateFare(rideDistance);
+        log.info("Ride Distance: {}, ETA: {}, Fare: {}", rideDistance, rideEta, fare);
         // 3. Prepare grouped response
         Map<String, List<NearbyDriverResponseDTO>> groupedByVehicleType = new HashMap<>();
         Map<String, Double> distanceSumMap = new HashMap<>();
@@ -108,9 +111,9 @@ public class RequestRideController {
                         .etaToPickup(driverToPickup.get("eta"))
                         .rideDistance(rideDistance)
                         .rideEta(rideEta)
-                        .fareEstimate(Double.valueOf(fare.replace("₹", "")))
+                        .fareEstimate(fare)
                         .build();
-
+  //fare.replace("₹", "")
                 groupedByVehicleType.computeIfAbsent(type, k -> new ArrayList<>()).add(dto);
                 distanceSumMap.merge(type, distToUser, Double::sum);
                 etaSumMap.merge(type, etaMinutes, Long::sum);
@@ -136,6 +139,10 @@ public class RequestRideController {
 
             responseList.add(group);
         }
+        log.info("Respose List: {}", responseList);
+        if(responseList.isEmpty()){
+            throw new APIException("No nearby drivers found for your request.");
+        }
 
         // 5. Send to user via WebSocket
         messagingTemplate.convertAndSendToUser(
@@ -149,27 +156,29 @@ public class RequestRideController {
     }
 
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int EARTH_RADIUS = 6371;
+        final int EARTH_RADIUS = 6371; // in kilometers
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(Math.toRadians(lat1)) *
                         Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) *
-                        Math.sin(dLon / 2);
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    private String estimateFare(String distanceText) {
+    private BigDecimal estimateFare(String distanceText) {
         try {
-            double km = Double.parseDouble(distanceText.replace(" km", "").trim());
+            String cleaned = distanceText.replace(" km", "").replace(",", "").trim();
+            double km = Double.parseDouble(cleaned);
             double baseFare = 20;
             double perKmRate = 10;
-            return "₹" + (baseFare + km * perKmRate);
+            double fare = baseFare + km * perKmRate;
+            return BigDecimal.valueOf(fare).setScale(2, RoundingMode.HALF_UP);
         } catch (Exception e) {
-            return "N/A";
+            return BigDecimal.ZERO;
         }
     }
+
 
     /* @PostMapping("/display-drivers-to-user")
     public ResponseEntity<?> findNearbyDrivers(@Valid @RequestBody RideRequestDTO rideRequest) {
@@ -374,7 +383,7 @@ public class RequestRideController {
 //    }
 
 
-    @PostMapping("/request")
+    @PostMapping("/user-request")
     public ResponseEntity<?> requestRide(@RequestBody RideRequestDriverDTO request) {
         try {
              rideRequestService.broadcastRideToNearbyDrivers(request);
@@ -389,6 +398,8 @@ public class RequestRideController {
            rideRequestService.acceptRide(request);
         return ResponseEntity.ok("Ride accepted successfully");
     }
+
+
 
 
 }

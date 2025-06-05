@@ -4,6 +4,9 @@ import com.maven.Rapido.model.OtpVerify;
 import com.maven.Rapido.payload.request.login.PhoneDTO;
 import com.maven.Rapido.payload.request.login.SignupDTO;
 import com.maven.Rapido.payload.response.user.UserResponse;
+import jakarta.validation.Valid;
+
+import java.util.Locale;
 
 public interface AuthService {
      OtpVerify sendOtp(PhoneDTO request);

@@ -21,10 +21,13 @@ public class VehicleCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ToString.Exclude
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, name = "name")
-    private VehicleType name;
+//    @ToString.Exclude
+//    @Enumerated(EnumType.STRING)
+    @Column(name = "name", nullable = true, unique = true)
+    private String name;
+
+    @Column(name = "slug", nullable = true, unique = true)
+    private String Slug;
 
     @Column(name = "description", nullable = true)
     private String description;

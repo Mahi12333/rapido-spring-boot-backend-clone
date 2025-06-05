@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class RedisTestController {
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @GetMapping("/redis-test")
     public ResponseEntity<String> testRedis() {
         try {
             redisTemplate.opsForValue().set("ping", "pong");
-            String value = redisTemplate.opsForValue().get("ping");
+            Object value = redisTemplate.opsForValue().get("ping");
             return ResponseEntity.ok("Redis is connected. Value: " + value);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

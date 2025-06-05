@@ -23,16 +23,20 @@ import com.maven.Rapido.utils.EmailService;
 import com.maven.Rapido.utils.EmailTamplate.EmailotpContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,6 +53,8 @@ public class AuthServiceImp implements AuthService {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
+    private MessageSource messageSource;
 
     @Value("${spring.app.jwtRefreshExpirationMs}")
     private int jwtRefreshExpirationMs;
@@ -63,6 +69,7 @@ public class AuthServiceImp implements AuthService {
         return handleOtpGeneration(request, true);
     }
 
+    @Transactional
     @Override
     public UserResponse registerUser(SignupDTO request) {
         String phone = request.getPhoneNumber();
@@ -143,14 +150,17 @@ public class AuthServiceImp implements AuthService {
         log.info("Received request to {} OTP for phone: {}", isResend ? "resend" : "send", combinedPhone);
 
         if (isNullOrEmpty(phone) || isNullOrEmpty(countryCode)) {
-            throw new APIException("Phone number and Country Code must not be null or empty.");
+            throw new APIException("error.phone.required");
+        }
+        Optional<User> userDB = userRepository.findByPhoneNumberAndCountryCode(phone, countryCode);
+        if (userDB.isPresent() && userDB.get().getRole().getRoleName() == UserRole.DRIVER) {
+            throw new APIException("error.driver.registered");
         }
 
         OtpVerify existingOtp = otpVerifyRepository.findByPhoneNumberAndUserId(phone, countryCode);
         Date now = new Date();
 
         if (existingOtp != null && now.before(existingOtp.getExpiry())) {
-            log.info("Reusing valid OTP");
             sendOtpByPhone(existingOtp.getOtp(), combinedPhone, existingOtp.getExpiry());
             return existingOtp;
         }
@@ -173,4 +183,6 @@ public class AuthServiceImp implements AuthService {
     private boolean isNullOrEmpty(String str) {
         return str == null || str.trim().isEmpty();
     }
+
+
 }

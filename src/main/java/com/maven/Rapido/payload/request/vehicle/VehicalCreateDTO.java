@@ -14,4 +14,5 @@ import java.time.LocalDateTime;
 public class VehicalCreateDTO {
     private String name;
     private String description;
+    private String slug;
 }

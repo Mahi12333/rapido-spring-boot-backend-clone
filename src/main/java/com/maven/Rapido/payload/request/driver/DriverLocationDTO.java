@@ -3,11 +3,12 @@ package com.maven.Rapido.payload.request.driver;
 
 import lombok.*;
 
+
+//@RedisHash("DriverLocationDTO")
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class DriverLocationDTO {
     private Long driverId;
     private Double lat;

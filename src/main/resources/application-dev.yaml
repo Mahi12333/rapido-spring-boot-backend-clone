@@ -34,6 +34,10 @@ spring:
       format_sql: true
   show-sql: true
   open-in-view: true #false
+  properties:
+    hibernate:
+      jdbc:
+        time_zone: UTC
 
   servlet:
     multipart:
@@ -115,6 +119,7 @@ otp:
 #    com.maven.Rapido: trace
 
 
+
 # File Storage Properties
 file:
   upload-dir: ./uploads
@@ -145,7 +150,7 @@ server:
 
 google:
   api:
-    key: AIzaSyAfiISUmg_6Bdcw0XI4GhocAi76a9_sYY8
+    key: AIzaSyDovHtxtPHq-fzGsE1rXUPT9tvUBa-1zcM
 
 #Aiuvn
 #redis:
@@ -162,5 +167,13 @@ redis:
 # Enable WebSocket debugging
 logging:
   level:
-     org.springframework.web.socket: DEBUG
-     org.springframework.messaging: DEBUG
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
+    #org.springframework.beans: DEBUG
+
+app:
+  firebase-configuration-file: fcmnotification-14-firebase-adminsdk-yzh8u-5ac73ffbd5.json
+
+razorpay:
+  key: rzp_test_gm6cdEsQ6MBYzW
+  secret: paQY7ER6DJzTHS73w2LA8MH1
