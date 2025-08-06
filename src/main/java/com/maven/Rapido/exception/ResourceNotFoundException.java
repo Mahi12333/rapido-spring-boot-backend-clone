@@ -1,5 +1,7 @@
 package com.maven.Rapido.exception;
 
+import static java.lang.StringTemplate.STR;  //! Java 21
+
 public class ResourceNotFoundException extends RuntimeException {
     String resourceName;
     String field;
@@ -10,7 +12,8 @@ public class ResourceNotFoundException extends RuntimeException {
 
 
     public ResourceNotFoundException(String resourceName, String field, String fieldName) {
-        super(String.format("%s not found with %s: %s", resourceName, field, fieldName));
+        //super(String.format("%s not found with %s: %s", resourceName, field, fieldName));
+        super(STR." \{resourceName} not found with \{field}: \{fieldName}");
         this.field = field;
         this.fieldName = fieldName;
         this.resourceName = resourceName;
@@ -29,7 +32,8 @@ public class ResourceNotFoundException extends RuntimeException {
         this.message = message;
     }
     public ResourceNotFoundException(String message) {
-        super(String.format("%s", message));
+        //super(String.format("%s", message));
+        super(STR."\{message}");
         this.message = message;
     }
 

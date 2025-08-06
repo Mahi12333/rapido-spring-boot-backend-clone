@@ -60,6 +60,7 @@ public class UserWalletPaymentserviceImpl implements UserWalletPaymentservice {
 
 
     // Scheduled every 30 minutes
+    @Transactional
     @Scheduled(fixedRate = 10 * 60 * 1000)
     public void cleanUpUnpaidOrders() {
         log.info("Cleaning up unpaid orders------------");

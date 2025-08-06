@@ -9,8 +9,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
+    //! This tells MapStruct to set the createdAt field on the target object using a custom method getCurrentDateTime()
+    //! when mapping from the source to the target.
+
+    //@Mapping(target = "createdAt", expression = "java(getCurrentDateTime())")
+
     @Mapping(target = "razorpaySingnature", ignore = true)
     PaymentResponse toCreatePaymentResponse(UserWallet createPayment);
-
     PaymentResponse toVerifyPaymentResponse(UserWallet createPayment);
 }

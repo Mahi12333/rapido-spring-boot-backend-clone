@@ -13,18 +13,18 @@ spring:
 #    active: dev  # Development Mode
 
 #jdbc:mysql://localhost:3306/social_network?useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/rapido_project
-#    username: root
-#    password: admin@123
-
-
   datasource:
-      url: jdbc:mysql://mysql-2c64d766-mgiri2000mgiri-d1cb.l.aivencloud.com:21671/rapido_project?sslMode=REQUIRED&allowPublicKeyRetrieval=true
-      username: avnadmin
-      password: AVNS_tenhTP6S2wNg8aZLTMv
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/rapido_project
+    username: root
+    password: admin@123
+
+
+#  datasource:
+#      url: jdbc:mysql://mysql-2c64d766-mgiri2000mgiri-d1cb.l.aivencloud.com:21671/rapido_project?sslMode=REQUIRED&allowPublicKeyRetrieval=true
+#      username: avnadmin
+#      password: AVNS_tenhTP6S2wNg8aZLTMv
+#      driver-class-name: com.mysql.cj.jdbc.Driver
 
 
   jpa:
@@ -124,12 +124,6 @@ otp:
 file:
   upload-dir: ./uploads
 
-# Actuator Properties
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
 
 
 #URL
@@ -170,6 +164,8 @@ logging:
     org.springframework.web.socket: DEBUG
     org.springframework.messaging: DEBUG
     #org.springframework.beans: DEBUG
+    org.springframework.security: DEBUG
+
 
 app:
   firebase-configuration-file: fcmnotification-14-firebase-adminsdk-yzh8u-5ac73ffbd5.json
@@ -177,3 +173,26 @@ app:
 razorpay:
   key: rzp_test_gm6cdEsQ6MBYzW
   secret: paQY7ER6DJzTHS73w2LA8MH1
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+
+storage:
+  type: s3
+  s3:
+    bucket-name: uatinvespy
+    cdn-endpoint: https://dkneumcx0kith.cloudfront.net
+    endpoint: https://invespy-assets.s3.us-east-1.amazonaws.com
+    region: ap-south-1
+    access-key: AKIA47GB7XMCSTJOQR6H
+    secret-key: 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
+
+

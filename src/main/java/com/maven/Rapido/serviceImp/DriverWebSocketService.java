@@ -44,7 +44,7 @@ public class DriverWebSocketService {
 
             messagingTemplate.convertAndSendToUser(
                     location.getUserId().toString(),         // Must match the Principal.getName() (String)
-                    "/queue/driver-location",  // Must match destination prefix
+                    "/queue/driver-location",               // Must match destination prefix
                     sendDTO
             );
 

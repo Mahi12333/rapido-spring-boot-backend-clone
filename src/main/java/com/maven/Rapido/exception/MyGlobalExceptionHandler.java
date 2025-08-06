@@ -91,4 +91,10 @@ public class MyGlobalExceptionHandler {
         return new ResponseEntity<ErrorDetails>(err, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(S3Exception.class)
+    public ResponseEntity<String> handleS3Exception(S3Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("S3 Error: " + ex.getMessage());
+    }
+
 }
