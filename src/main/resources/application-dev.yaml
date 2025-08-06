@@ -164,3 +164,20 @@ logging:
   level:
      org.springframework.web.socket: DEBUG
      org.springframework.messaging: DEBUG
+
+razorpay:
+  key: "rzp_test_9b1c2f3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t"
+  secret: "rzp_test_9b1c2f3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t_secret"
+
+storage:
+  s3:
+    endpoint: "https://s3.us-west-004.backblazeb2.com"
+    access-key: AKIA47GB7XMCSTJOQR6H
+    secret-key: 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
+    region: ap-south-1
+    bucket-name: uatinvespy
+
+
+app:
+  firebase-configuration-file: classpath:fcmnotification-14-firebase-adminsdk-yzh8u-5ac73ffbd5.json
+
