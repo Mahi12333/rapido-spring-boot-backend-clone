@@ -97,7 +97,6 @@ public class AuthController {
         }
         String refreshToken = refreshTokenHeader.substring(7);
         log.info("storedToken-- {}",refreshToken);
-        // ✅ Check if token exists in DB
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "error.refresh.token"));
          //  log.info("storedToken-- {}",storedToken);

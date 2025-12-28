@@ -135,7 +135,6 @@ FORGET_PASSWORD_URL: "http://localhost:4200"
 server:
   port: 5001
 
-
   # Error Handling
   error:
     include-binding-errors: always
