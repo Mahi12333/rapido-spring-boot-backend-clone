@@ -1,36 +1,65 @@
 # Rapido
 
-Rapido is a high\-performance web application for managing tasks and projects. It provides a fast and efficient way to organize work, collaborate with team members, and stay on top of deadlines.
+A high-performance **Spring Boot backend application** inspired by Rapido, designed to handle ride management, real-time operations, notifications, and scalable APIs.  
+This project focuses on **clean architecture, production-ready practices, and extensibility** for web or mobile clients.
 
-## Features
+---
 
-- Task management: create, update, and delete tasks.
-- Project organization: group tasks into projects.
-- Collaboration: share projects with team members.
-- Notifications: stay updated on task and project changes.
-- RESTful API: Spring Boot\-based backend, ready to be consumed by web or mobile clients.
+## ✨ Key Features
 
-## Tech stack
+- 🚕 Ride & task management (create, update, track lifecycle)
+- 📦 Project-oriented backend architecture
+- 🔐 Secure authentication & authorization (Spring Security ready)
+- 🔔 Notifications support (Email / FCM ready)
+- 🌐 RESTful APIs for web & mobile clients
+- ⚡ High-performance and scalable design
+- 🧪 Test-friendly structure
 
-- Java 17 (adjust to your actual version)
-- Spring Boot
-- Maven
-- (Optional) Spring Data JPA, Spring Security, MySQL, etc. \- adjust as needed
+---
 
-## Getting started
+## 🛠 Tech Stack
+
+- **Java** 17 / 21
+- **Spring Boot**
+- **Spring MVC**
+- **Spring Data JPA**
+- **Spring Security** (optional / configurable)
+- **Maven**
+- **PostgreSQL / MySQL** (configurable)
+- **REST APIs**
+
+> Optional integrations: Redis, WebSocket, Firebase (FCM), RabbitMQ
+
+
 
 ### Prerequisites
 
-- Java JDK 17\+ installed and on `PATH`
+- Java JDK 21\+ installed and on `PATH`
 - Maven 3\.9\+ installed
 - Git installed
 
-### Clone the repository
+---
+
+
+
+### 1. Clone
 
 ```bash
-git clone https://github.com/Mahi12333/Rapido-Project.git
-cd Rapido-Project
-``` 
+git clone https://github.com/Mahi12333/rapido-spring-boot-backend-clone.git
+cd Learning-Management-System
+```
+
+### 2. Environment variables
+
+Create a `.env` or set system environment variables used by `application.yml`:
+
+```properties
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/lms
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=your-password
+JWT_SECRET=your_jwt_secret_key_here
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name   # optional
+```
 
 ### Build the project
 
