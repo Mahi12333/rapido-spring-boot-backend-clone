@@ -15,7 +15,7 @@ Rapido is a high\-performance web application for managing tasks and projects. I
 - Java 17 (adjust to your actual version)
 - Spring Boot
 - Maven
-- (Optional) Spring Data JPA, Spring Security, PostgreSQL/MySQL, etc. \- adjust as needed
+- (Optional) Spring Data JPA, Spring Security, MySQL, etc. \- adjust as needed
 
 ## Getting started
 
