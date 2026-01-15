@@ -45,13 +45,13 @@ mvn spring-boot:run
 The application will start on `http://localhost:8080` by default.
 
 ## Configuration
-
 You can configure the application by modifying the `application.properties` or `application.yml` file located in the `src/main/resources` directory. Adjust database settings, server port, and other configurations as needed.
 src/main/resources/application.properties
-# server.port\=8080
-# spring.datasource.url\=jdbc:postgresql://localhost:5432/rapido
-# spring.datasource.username\=...
-# spring.datasource.password\=...
+
+server.port\=8080
+spring.datasource.url\=jdbc:postgresql://localhost:5432/rapido
+spring.datasource.username\=...
+spring.datasource.password\=...
 
 
 ## Project structure
@@ -66,7 +66,28 @@ Rapido/
   └─ README.md
 
 
-License
-Rapido is licensed under the MIT License. See the LICENSE file for more information.
-Contact
-For questions or feedback, open an issue on the repository or contact the maintainer(s) listed in pom.xml or project documentation.
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repo
+2. Create a feature branch
+3. Open a PR describing your changes
+
+Include tests and keep commits atomic.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see `LICENSE` file.
+
+---
+
+## 📞 Contact
+
+Maintainer — Mahitosh Giri Name ([mahitoshgiri287.email@example.com](mailto:your.email@example.com))
+
+---

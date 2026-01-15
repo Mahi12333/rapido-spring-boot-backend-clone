@@ -28,6 +28,8 @@ public class S3Config {
     @Value("${storage.s3.region}")
     private String STORAGE_S3_REGION;
 
+    // S3 Client bean for interacting with S3-compatible storage services
+    // purpose: upload, download, delete files
     @Bean
     public S3Client s3Client() {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(STORAGE_S3_ACCESS_KEY, STORAGE_S3_SECRET_KEY);
@@ -40,6 +42,8 @@ public class S3Config {
                 .build();
     }
 
+    // Presigner bean for generating pre-signed URLs for S3 operations like upload/download
+    // purpose: temporary access to S3 objects without exposing credentials
     @Bean
     public S3Presigner s3Presigner() {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(STORAGE_S3_ACCESS_KEY, STORAGE_S3_SECRET_KEY);

@@ -40,7 +40,7 @@ springdoc:
 
 cloudinary:
   cloud_name: dvxef5plb
-  api_key: 272592496495854
+  api_key: 27259245854
   api_secret: KiAp22_2sT7GZ2AqZHcQEYkTZjE
 
 logging:

@@ -18,12 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/api/feed")
 public class S3BucketController {
+
      private final S3Services s3Services;
+     // file upload throgh presigned URL
     @PostMapping("/presign-file-upload")
     public ResponseEntity<PresignedUrlResponse> generatePresignedUrl(@RequestBody PresignedUrlRequest request) {
         PresignedUrlResponse response = s3Services.saveFileToBucket(request);
         return ResponseEntity.ok(response);
     }
+    // file upload through s3 client
+
+
+
     @PostMapping("/submit")
     public ResponseEntity<Void> submitForm(@RequestBody CreateFeedDTO request) {
         s3Services.feedCreate(request);
